@@ -1,6 +1,6 @@
 lvim.log.level = "warn"
 lvim.format_on_save = true
-lvim.colorscheme = "kanagawa"
+lvim.colorscheme = "gruvbox"
 lvim.builtin.terminal.size = 90
 lvim.builtin.terminal.direction = "vertical"
 
@@ -10,8 +10,31 @@ lvim.keys.normal_mode["<S-h>"] = ":BufferLineCyclePrev<CR>"
 
 lvim.leader = "space"
 
+vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "clangd" })
+
+lvim.lsp.on_attach_callback = function(client, bufnr)
+  local filetype = vim.api.nvim_buf_get_option(bufnr, "filetype")
+
+  if filetype == "c" or filetype == "cpp" then
+    -- Disable LSP for C/C++
+    vim.lsp.stop_client(client.id)
+  end
+end
+
+local function insert_double_quotes()
+  local col = vim.fn.col('.')
+  vim.api.nvim_put({ '""' }, 'c', false, true)
+  vim.fn.cursor(0, col + 1);
+end
+
+lvim.keys.insert_mode["<M-ç>"] = function()
+  insert_double_quotes()
+end
+
+
 vim.opt.relativenumber = true -- relative line numbers
 
+vim.opt.clipboard = "unnamedplus"
 
 local _, actions = pcall(require, "telescope.actions")
 lvim.builtin.telescope.defaults.mappings = {
@@ -39,7 +62,8 @@ lvim.builtin.nvimtree.setup.renderer.icons.show.git = true
 
 lvim.plugins = {
   { "Pocco81/auto-save.nvim" },
-  { "catppuccin/nvim",       name = "catppuccin" },
+  { "catppuccin/nvim",         name = "catppuccin" },
   { "rebelot/kanagawa.nvim" },
-  --{ "Exafunction/codeium.vim" },
+  { "ellisonleao/gruvbox.nvim" },
+  -- { "Exafunction/codeium.vim" },
 }
